@@ -1,0 +1,48 @@
+# ==========================================
+# IGNORAR ARQUIVOS DO SISTEMA OPERACIONAL
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# IGNORAR ARQUIVOS DO PYTHON
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.log
+
+# ==========================================
+# IGNORAR ARQUIVOS DO PYINSTALLER (.exe)
+# ==========================================
+# O PyInstaller gera muito lixo de compilação.
+# A pasta build/ e dist/ são ignoradas para 
+# não lotar seu GitHub com arquivos binários gigantes.
+build/
+dist/
+*.spec
+
+# ==========================================
+# IGNORAR ARQUIVOS DO JAVA (Projeto 1)
+# ==========================================
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# ==========================================
+# IGNORAR ARQUIVOS DE IDEs (VSCode, Eclipse, etc)
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+.classpath
+.project
+.settings/
