@@ -1,48 +1,59 @@
-# ==========================================
-# IGNORAR ARQUIVOS DO SISTEMA OPERACIONAL
-# ==========================================
+# ============================================================================
+# ARQUIVOS DO SISTEMA OPERACIONAL
+# ============================================================================
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# ==========================================
-# IGNORAR ARQUIVOS DO PYTHON
-# ==========================================
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-*.log
-
-# ==========================================
-# IGNORAR ARQUIVOS DO PYINSTALLER (.exe)
-# ==========================================
-# O PyInstaller gera muito lixo de compilação.
-# A pasta build/ e dist/ são ignoradas para 
-# não lotar seu GitHub com arquivos binários gigantes.
-build/
-dist/
-*.spec
-
-# ==========================================
-# IGNORAR ARQUIVOS DO JAVA (Projeto 1)
-# ==========================================
+# ============================================================================
+# PARTE I — JAVA (Produtor e Consumidor)
+# ============================================================================
 *.class
 *.jar
 *.war
 *.nar
 *.ear
-*.zip
-*.tar.gz
-*.rar
+hs_err_pid*
+replay_pid*
 
-# ==========================================
-# IGNORAR ARQUIVOS DE IDEs (VSCode, Eclipse, etc)
-# ==========================================
+# ============================================================================
+# PARTE II — GO (Barbeiro Dorminhoco)
+# ============================================================================
+# Binários compilados e executáveis
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+BarbeiroDorminhoco/barbearia
+
+# Binários de teste e perfis de cobertura do Go
+*.test
+*.out
+coverage.txt
+profile.cov
+
+# Workspace local e diretório vendor do Go
+go.work
+go.work.sum
+vendor/
+
+# ============================================================================
+# IDEs E EDITORES (VS Code, IntelliJ, Eclipse, GoLand)
+# ============================================================================
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 .classpath
 .project
 .settings/
+
+# ============================================================================
+# LOGS E ARQUIVOS COMPACTADOS TEMPORÁRIOS
+# ============================================================================
+*.log
+*.zip
+*.tar.gz
+*.rar
