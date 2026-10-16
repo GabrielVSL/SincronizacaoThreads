@@ -29,18 +29,26 @@ func (b *Barbearia) Cliente(id int, wg *sync.WaitGroup) {
 	b.mutex.Down()
 	b.validarEstado()
 
+	nomeAtor := fmt.Sprintf("Cliente #%02d", id)
+
 	if b.waiting < b.totalCadeiras {
 		// Há cadeira disponível: o cliente senta-se na espera
 		b.waiting++
 		b.filaEspera = append(b.filaEspera, id)
 		b.validarEstado()
 
-		b.log(fmt.Sprintf("[CLIENTE #%02d | ENTROU]", id),
-			fmt.Sprintf("Sentou na cadeira de espera (%d/%d)", b.waiting, b.totalCadeiras),
-			b.EstadoCadeiras())
-
 		// 2. Faz Up() no semáforo 'customers' (acorda o barbeiro se estiver dormindo)
 		b.customers.Up()
+
+		b.registrarEvento(
+			nomeAtor,
+			"ESPERA",
+			corAmarelo,
+			fmt.Sprintf("Sentou na espera (%d/%d)", b.waiting, b.totalCadeiras),
+			"waiting++ | customers.Up()",
+			fmt.Sprintf("%s obteve mutex.Down(), viu vaga (%d/%d), fez waiting++, acordou barbeiro (customers.Up), liberou mutex.Up() e aguarda em barbers.Down().",
+				nomeAtor, b.waiting, b.totalCadeiras),
+		)
 
 		// 3. Libera a REGIÃO CRÍTICA antes de esperar pelo barbeiro (evita Deadlock!)
 		b.mutex.Up()
@@ -54,9 +62,15 @@ func (b *Barbearia) Cliente(id int, wg *sync.WaitGroup) {
 		// Barbearia lotada (waiting == totalCadeiras): vai embora sem cortar
 		b.Desistiram++
 
-		b.log(fmt.Sprintf("[CLIENTE #%02d | LOTADO]", id),
-			"Barbearia cheia! Foi embora sem cortar",
-			b.EstadoCadeiras())
+		b.registrarEvento(
+			nomeAtor,
+			"LOTADO!",
+			corVermelho,
+			"Sem vagas! Foi embora",
+			"mutex.Up() (Desistiu)",
+			fmt.Sprintf("%s obteve mutex.Down(), viu que waiting == %d (LOTADO!), liberou mutex.Up() e foi embora sem cortar.",
+				nomeAtor, b.totalCadeiras),
+		)
 
 		// Libera a REGIÃO CRÍTICA e sai da barbearia
 		b.mutex.Up()
@@ -68,8 +82,14 @@ func (b *Barbearia) receberCorte(id int) {
 	time.Sleep(b.tempoCorte + 5*time.Millisecond)
 
 	b.mutex.Down()
-	b.log(fmt.Sprintf("[CLIENTE #%02d | SAIU  ]", id),
-		"Cabelo cortado! Deixou a barbearia.",
-		"")
+	nomeAtor := fmt.Sprintf("Cliente #%02d", id)
+	b.registrarEvento(
+		nomeAtor,
+		"SAIU",
+		corVerde,
+		"Cabelo cortado! Saiu feliz",
+		"Fim de receberCorte()",
+		fmt.Sprintf("%s terminou de receber o corte de cabelo e deixou a barbearia.", nomeAtor),
+	)
 	b.mutex.Up()
 }

@@ -17,17 +17,19 @@ import (
 //   6. Executa o corte de cabelo (fora da Região Crítica).
 
 func (b *Barbearia) Barbeiro() {
-	b.mutex.Down()
-	b.log("[BARBEIRO | ABRIU   ]",
-		fmt.Sprintf("Abriu a barbearia (%d cadeiras de espera)", b.totalCadeiras),
-		b.EstadoCadeiras())
-	b.mutex.Up()
-
 	for {
-		// Se não há clientes esperando, avisa no log que o barbeiro vai cair no sono
+		// Se não há clientes esperando, avisa no painel que o barbeiro vai cair no sono
 		b.mutex.Down()
 		if b.waiting == 0 {
-			b.log("[BARBEIRO | DORMINDO]", "Sem clientes! Sentou na cadeira e dormiu...", b.EstadoCadeiras())
+			b.clienteEmCorte = 0
+			b.registrarEvento(
+				"Barbeiro",
+				"DORMINDO",
+				corAzul,
+				"Sem clientes, caiu no sono",
+				"customers.Down()",
+				"Nao ha clientes na espera (waiting == 0). O barbeiro faz customers.Down() e DORME sem gastar CPU.",
+			)
 		}
 		b.mutex.Up()
 
@@ -40,15 +42,21 @@ func (b *Barbearia) Barbeiro() {
 		clienteAtual := b.filaEspera[0]
 		b.filaEspera = b.filaEspera[1:]
 		b.waiting--
+		b.clienteEmCorte = clienteAtual
 		b.Atendidos++
 		b.validarEstado()
 
 		// 3. Sinaliza que o barbeiro está pronto para cortar (barbers.Up)
 		b.barbers.Up()
 
-		b.log("[BARBEIRO | CORTANDO]",
-			fmt.Sprintf("Acordou/chamou Cliente #%02d para cortar!", clienteAtual),
-			b.EstadoCadeiras())
+		b.registrarEvento(
+			"Barbeiro",
+			"CORTANDO",
+			corVerde,
+			fmt.Sprintf("Chamou Cliente #%02d p/ corte", clienteAtual),
+			"waiting-- | barbers.Up()",
+			fmt.Sprintf("Entrou em mutex.Down(), tirou Cliente #%02d da espera (waiting=%d), fez barbers.Up() e liberou mutex.Up().", clienteAtual, b.waiting),
+		)
 
 		// 4. Sai da REGIÃO CRÍTICA antes de cortar o cabelo (evita deadlock!)
 		b.mutex.Up()
@@ -63,9 +71,15 @@ func (b *Barbearia) cortarCabelo(idCliente int) {
 	time.Sleep(b.tempoCorte)
 
 	b.mutex.Down()
-	b.log("[BARBEIRO | PRONTO  ]",
-		fmt.Sprintf("Terminou o corte do Cliente #%02d", idCliente),
-		b.EstadoCadeiras())
+	b.clienteEmCorte = 0
+	b.registrarEvento(
+		"Barbeiro",
+		"PRONTO",
+		corAzul,
+		fmt.Sprintf("Terminou corte do Cli #%02d", idCliente),
+		"Fim de cortarCabelo()",
+		fmt.Sprintf("O barbeiro concluiu o corte do Cliente #%02d e vai verificar se ha outro cliente na espera.", idCliente),
+	)
 	b.mutex.Up()
 
 	// Pequena pausa para o cliente levantar da cadeira antes de chamar o próximo
